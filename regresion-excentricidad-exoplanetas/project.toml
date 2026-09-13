@@ -1,0 +1,8 @@
+[document]
+title = "Informe IEEE - Excentricidad Orbital Exoplanetas"
+author = "Jheison Martinez Bolivar"
+template = "ieee"
+
+[build]
+entry = "main.tex"
+bib = "bib/references.bib"
