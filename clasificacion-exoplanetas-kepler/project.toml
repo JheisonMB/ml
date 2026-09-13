@@ -1,0 +1,8 @@
+[document]
+title = "Informe IEEE - Clasificacion de Candidatos a Exoplaneta Kepler"
+author = "Jheison Martinez Bolivar"
+template = "ieee"
+
+[build]
+entry = "main.tex"
+bib = "bib/references.bib"
