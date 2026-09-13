@@ -1,0 +1,11 @@
+ipykernel==7.3.0
+kagglehub==1.0.2
+matplotlib==3.11.1
+numpy==2.5.2
+pandas==3.0.5
+scikit-learn==1.9.0
+spacy==3.8.16
+textstat==0.7.13
+
+# Modelo de spaCy (no esta en PyPI, se instala aparte):
+# python -m spacy download en_core_web_sm
