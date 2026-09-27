@@ -19,6 +19,7 @@ Jheison Martinez Bolivar. Un directorio por actividad, cada uno con su notebook 
 | `didactico-covarianza-mahalanobis` | Cuaderno didáctico de apoyo: gaussianas, covarianza y Mahalanobis | notebook |
 | `nlp-transformers-capitulo-novela` | Cuatro transformers (resumen, NER, QA, similitud) sobre un capítulo de novela | notebook |
 | `nlp-despliegue-spam-sentimiento` | Despliegue de modelos clásicos: spam en SMS y sentimiento en tweets, publicados en Hugging Face | dos notebooks + modelos en el Hub |
+| `series-temporales-prediccion` | Series temporales: actividad solar SILSO y temperatura Berkeley Earth (ARIMA, ARIMAX, LSTM, DQN en Pendulum) | notebook + informe IEEE |
 
 ## Reproducir un proyecto
 

@@ -1,0 +1,189 @@
+\documentclass[10pt,journal]{IEEEtran}
+\usepackage[spanish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{placeins}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\lstdefinestyle{pythonstyle}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!60!black}\bfseries,
+  stringstyle=\color{red!50!brown},
+  commentstyle=\color{gray}\itshape,
+  numbers=none,
+  breaklines=true,
+  showstringspaces=false,
+  frame=single,
+  framesep=3pt,
+  xleftmargin=3pt,
+  xrightmargin=3pt,
+  columns=flexible,
+}
+\lstset{style=pythonstyle}
+\usepackage[pdfauthor={Jheison Martinez Bolivar},pdftitle={Series Temporales: Actividad Solar y Temperatura Global con ARIMA, LSTM y DQN},colorlinks,linkcolor=blue,citecolor=green,urlcolor=cyan]{hyperref}
+
+\newcommand{\enlacenb}{\url{https://colab.research.google.com/github/JheisonMB/ml/blob/main/series-temporales-prediccion/series_temporales_prediccion.ipynb}}
+
+\begin{document}
+
+  \title{Series Temporales: \textquestiondown{}La Actividad Solar Ayuda a Predecir la Temperatura Global?\\ ARIMA, LSTM y DQN sobre Manchas SILSO y Anomal\'ias Berkeley Earth}
+
+  \author{
+    Jheison Martinez Bolivar\\
+    \textit{Maestr\'ia en Inteligencia Artificial}\\
+    \textit{Universidad de La Salle, Bogot\'a, Colombia}\\
+    \texttt{jhmartinez07@unisalle.edu.co}
+  }
+  \maketitle
+  \markboth{Universidad de La Salle --- Aprendizaje de M\'aquina. Septiembre 2026}{}
+
+  \begin{abstract}
+    Este trabajo pregunta si la actividad solar aporta se\~nal predictiva a la temperatura global mensual. Sobre el marco com\'un 1880--2025 (1\,751 meses, sin nulos ni duplicados) se compara la anomal\'ia terrestre \texttt{land} de Berkeley Earth contra el conteo de manchas SILSO como variable ex\'ogena, con corte temporal en 2001 (entreno $n=1\,452$, prueba $n=299$). El ARIMA(2,1,1) elegido por AIC obtiene $RMSE=0.4637$ en la prueba; a\~nadir el sol lo empeora ($RMSE=0.5121$, coeficiente pr\'acticamente cero). La LSTM univariada empata al ARIMA ($RMSE=0.4799$) y la multivariada pierde en las tres semillas ($RMSE$ entre 0.50 y 1.05), as\'i que la hip\'otesis solar queda enterrada por las dos v\'ias. En bloque aparte, un DQN con acciones discretizadas aprende a estabilizar el p\'endulo de \texttt{Pendulum-v1} (retorno voraz $\approx -214$ contra $\approx -1\,250$ del azar, estable en tres semillas). El cuaderno con la implementaci\'on completa se ejecuta en Colab desde \enlacenb.
+  \end{abstract}
+
+  \section{Introducci\'on}
+
+  \IEEEPARstart{E}{l} Sol impone un ciclo de unos once a\~nos sobre su propia actividad, visible en el conteo de manchas, y el clima terrestre guarda memoria de largo plazo en sus anomal\'ias de temperatura \cite{silso2025,berkeleyearth2024}. La pregunta de si el primero ayuda a predecir la segunda es anterior al aprendizaje autom\'atico y sigue abierta en su forma predictiva: no si el Sol causa el clima, sino si ver las manchas reduce el error de pron\'ostico de la temperatura.
+
+  Este trabajo la convierte en una comparaci\'on cerrada: la misma serie, el mismo corte temporal, los mismos errores, con y sin la variable solar. Del lado estad\'istico, ARIMA y su extensi\'on con ex\'ogena ARIMAX \cite{box2015}; del lado aprendido, redes LSTM univariadas y multivariadas \cite{hochreiter1997}. En bloque independiente, y porque la actividad tambi\'en lo pide, un agente DQN \cite{mnih2015} sobre un entorno de control continuo. La metodolog\'ia de series sigue la referencia can\'onica de pron\'ostico \cite{hyndman2021}.
+
+  \section{Datos y Preprocesamiento}
+
+  \subsection{Selecci\'on de los Conjuntos de Datos}
+
+  Se usan dos fuentes con cobertura mensual solapada desde 1880. Las manchas provienen del conteo mensual total SILSO v2.0 (archivo \texttt{SN\_m\_tot\_V2.0.csv}, sin encabezado y con separador \texttt{;}), cuya documentaci\'on oficial describe las siete columnas \cite{silso2025,kaggle_sunspot_dataset}. La temperatura proviene de las anomal\'ias mensuales Berkeley Earth (columnas \texttt{time}, \texttt{station}, \texttt{land}), donde cada valor es la desviaci\'on del mes respecto a su referencia clim\'atica \cite{berkeleyearth2024,kaggle_land_temperature_dataset}. Una anomal\'ia no es la temperatura del term\'ometro: $+0.5$ significa medio grado por encima de lo normal para ese mes.
+
+  Como protagonista se fija \texttt{land} (solo tierra): trae menos dispersi\'on que la combinada \texttt{station} ($\sigma=0.41$ contra $0.52$) y es la serie limpia del conjunto; su correlaci\'on mensual contempor\'anea con las manchas es pr\'acticamente cero en ambas ($\approx 0.02$), as\'i que un v\'inculo instant\'aneo queda descartado desde el EDA.
+
+  \subsection{Marco Com\'un y Limpieza}
+
+  El tiempo decimal de Berkeley Earth se convierte a mes calendario por truncamiento, no por redondeo: redondear salta febrero y duplica abril, defecto que se detect\'o por 585 fechas duplicadas y se corrigi\'o antes de seguir. El marco com\'un 1880-01 a 2025-11 queda con $n=1\,751$ meses contiguos, cero nulos y cero duplicados. La Figura~\ref{fig:nivel} muestra las dos series en nivel.
+
+  \begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{assets/images/fig_nivel.png}
+    \caption{Anomal\'ia terrestre \texttt{land} (arriba) y manchas solares mensuales (abajo), 1880--2025.}
+    \label{fig:nivel}
+  \end{figure*}
+
+  La descomposici\'on aditiva de \texttt{land} con per\'iodo 12 (Figura~\ref{fig:descomposicion}) muestra una tendencia que recorre m\'as de un grado y un componente anual m\'inimo ($\pm 0.03\,^{\circ}\mathrm{C}$): la anomal\'ia descuenta las estaciones al medirse contra su propio mes, y la lectura estacional que sobrevive (marzos y octubres altos, junios bajos) no corresponde a estaciones de ning\'un hemisferio. La dispersi\'on por d\'ecada crece en las d\'ecadas recientes.
+
+  \begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{assets/images/fig_descomposicion.png}
+    \caption{Tendencia por promedio m\'ovil centrado de 12 meses y perfil estacional de 12 meses de \texttt{land}.}
+    \label{fig:descomposicion}
+  \end{figure*}
+
+  El ciclo solar se caracteriza pico a pico sobre la suavizada de 13 meses que usa el SILSO, exigiendo casi una d\'ecada entre m\'aximos porque cada ciclo trae picos dobles: 14 m\'aximos con intervalos alrededor de la decena de a\~nos (pico espectral en $\approx 125$ meses). La Figura~\ref{fig:maximos} los marca.
+
+  \begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{assets/images/fig_maximos_solares.png}
+    \caption{Manchas solares con los 14 m\'aximos del ciclo sobre la serie suavizada.}
+    \label{fig:maximos}
+  \end{figure*}
+
+  El corte es estrictamente temporal: entreno 1880--2000 ($n=1\,452$) y prueba 2001 en adelante ($n=299$), sin barajar. La validaci\'on de la LSTM sale de dentro del entreno (1991--2000), sin tocar la prueba.
+
+  \section{Metodolog\'ia}
+
+  \subsection{ARIMA y ARIMAX}
+
+  El test ADF \cite{dickey1979} sobre el entreno no rechaza ra\'iz unitaria en nivel ($p=0.42$) y s\'i en primera diferencia ($p\approx 0$), de modo que $d=1$. La ACF de la diferencia corta en el rezago uno y la PACF decae gradualmente, firma de media m\'ovil de orden uno; el AIC sobre el entreno elige ARIMA(2,1,1) frente a sus vecinos. El modelo pronostica como
+  \begin{equation}
+    \Delta y_t = c + \phi_1 \Delta y_{t-1} + \phi_2 \Delta y_{t-2} + \theta_1 \varepsilon_{t-1} + \varepsilon_t,
+    \label{eq:arima}
+  \end{equation}
+  y el ARIMAX a\~nade la mancha contempor\'anea como regresor ex\'ogeno con el mismo orden y el mismo corte, de modo que P2 de modo que P2 compara con sol contra sin sol.
+
+  \subsection{LSTM Univariada y Multivariada}
+
+  La celda LSTM \cite{hochreiter1997} decide qu\'e olvidar, qu\'e guardar y qu\'e mostrar mediante sus compuertas:
+  \begin{equation}
+    C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t,
+    \label{eq:lstm}
+  \end{equation}
+  donde $f_t$ e $i_t$ son las compuertas de olvido y entrada. La red (LSTM de 32 unidades m\'as capa densa) ve ventanas de 24 meses y pronostica la prueba de forma recursiva sin mirar sus datos; la versi\'on multivariada recibe adem\'as las manchas futuras observadas, como ex\'ogena que es. Misma arquitectura, misma semilla, mismas ventanas: P3 es el \emph{ablation} que P2 dej\'o pendiente, y se repite con tres semillas porque el n\'umero exacto baila entre corridas aun con igual semilla (no-determinismo de GPU).
+
+  \subsection{DQN sobre el P\'endulo}
+
+  En \texttt{Pendulum-v1} \cite{gymnasium2024} el torque continuo se discretiza en cinco empujones y la red Q minimiza
+  \begin{equation}
+    L = \mathbb{E}\left[\left(r + \gamma \max_{a'} Q(s',a';\theta^{-}) - Q(s,a;\theta)\right)^2\right],
+    \label{eq:dqn}
+  \end{equation}
+  con caja de recuerdos, red objetivo congelada y $\varepsilon$ decreciente durante 300 episodios. El list\'on es el agente al azar ($\approx -1\,250$ de retorno medio).
+
+  \section{Resultados y Discusi\'on}
+
+  La Tabla~\ref{tab:errores} resume la prueba y la Figura~\ref{fig:pronosticos} la dibuja. P1: el ARIMA se predice con el propio pasado pero su pron\'ostico de horizonte largo se queda plano y no acompa\~na la subida ($\mathrm{RMSE}=0.4637$). P2: el sol no aporta se\~nal, con coeficiente pr\'acticamente cero y error mayor ($\mathrm{RMSE}=0.5121$). P3: la LSTM sin sol empata al ARIMA ($\mathrm{RMSE}=0.4799$) y con sol pierde en las tres semillas ($0.50$--$1.05$): la hip\'otesis solar queda enterrada por las dos v\'ias. Que la red con m\'as informaci\'on pierda es el hallazgo que rompe la intuici\'on del trabajo; la lectura es que el canal solar no trae se\~nal mensual y el pron\'ostico recursivo amplifica el ruido que s\'i trae.
+
+  \begin{table}[t]
+    \centering
+    \caption{Error sobre la prueba 2001 en adelante ($n=299$).}
+    \label{tab:errores}
+    \begin{tabular}{lcc}
+      \toprule
+      Modelo & RMSE & MAE \\
+      \midrule
+      ARIMA(2,1,1) & 0.4637 & 0.3998 \\
+      ARIMAX(2,1,1) con sol & 0.5121 & 0.4537 \\
+      LSTM sin sol & 0.4799 & 0.4181 \\
+      LSTM con sol & 0.9709 & 0.8770 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{assets/images/fig_pronosticos.png}
+    \caption{Observada contra los cuatro pron\'osticos sobre la prueba.}
+    \label{fig:pronosticos}
+  \end{figure*}
+
+  El bloque RL s\'i aprende: de nivel azar a retorno voraz $\approx -206$ en la semilla principal y $\approx -214$--$-222$ en las dos de robustez, con la curva de la Figura~\ref{fig:curva}.
+
+  \begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{assets/images/fig_curva_rl.png}
+    \caption{Retorno por episodio del DQN, media m\'ovil de 20.}
+    \label{fig:curva}
+  \end{figure}
+
+  \section{Conclusiones}
+
+  \begin{enumerate}
+    \item La temperatura global se predice en el corto plazo con su propio pasado, pero su subida sostenida no sale de la historia lineal ni de la red: falta el forzante que la empuja.
+    \item La actividad solar, con su ciclo decenal bien medido, no aporta se\~nal predictiva mensual a la temperatura en este marco; es un resultado negativo documentado, no una hip\'otesis sin probar.
+    \item El aprendizaje por refuerzo s\'i resuelve su tarea continua cuando la recompensa gu\'ia paso a paso: el p\'endulo se estabiliza desde cualquier semilla.
+    \item Reproducibilidad: cuaderno ejecutado de punta a punta con \texttt{requirements.txt} pinneado y semillas fijas, figuras exportadas por script aparte a \texttt{assets/images/} y entorno con venv local; el cuaderno se ejecuta de punta a punta en Colab desde \enlacenb.
+  \end{enumerate}
+
+  \appendix
+  Fragmentos de C\'odigo Clave
+  \begin{lstlisting}
+import kagglehub
+from pathlib import Path
+sun_dir = Path(kagglehub.dataset_download(
+    'gallo33henrique/sunspot-numbers-dataset-17002025'))
+  \end{lstlisting}
+  \begin{lstlisting}
+from statsmodels.tsa.stattools import adfuller
+stat, pvalue, *_ = adfuller(train['land'].dropna())
+  \end{lstlisting}
+  \begin{lstlisting}
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+fit = SARIMAX(train['land'], order=(2, 1, 1)).fit(disp=False)
+  \end{lstlisting}
+
+  \bibliographystyle{IEEEtran}
+  \bibliography{bib/references}
+
+\end{document}

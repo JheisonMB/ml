@@ -229,3 +229,4 @@ nlp-transformers-capitulo-novela/data/
 *.zip
 # Cache de texforge
 .texforge/
+tutoria/
