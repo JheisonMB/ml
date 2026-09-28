@@ -79,21 +79,61 @@ def fig_nivel(frame):
     plt.close(fig)
 
 
+MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+         "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+
+
 def fig_descomposicion(frame):
-    train = frame.loc[:"2000-12", "land"]
-    result = seasonal_decompose(train, model="additive", period=12, extrapolate_trend="freq")
-    fig, axes = plt.subplots(3, 1, figsize=(11, 7), sharex=True)
-    train.plot(ax=axes[0], color="tab:blue", linewidth=0.8)
-    axes[0].set_ylabel("observada")
-    pd.Series(result.trend, index=train.index).plot(ax=axes[1], color="tab:red", linewidth=1.2)
-    axes[1].set_ylabel("tendencia")
-    pd.Series(result.seasonal, index=train.index).plot(ax=axes[2], color="tab:green", linewidth=0.8)
-    axes[2].set_ylabel("estacional")
-    axes[2].set_xlabel("año")
-    axes[0].set_title("Descomposición aditiva, periodo 12")
+    land = frame["land"]
+    result = seasonal_decompose(land, model="additive", period=12, extrapolate_trend="freq")
+    trend = pd.Series(result.trend, index=land.index)
+    # Mismo residuo que el cuaderno: la serie menos su tendencia, agrupado por mes.
+    # Un solo enero para todo el periodo, no uno por ano.
+    detrended = land - trend
+    mean_by_month = detrended.groupby(land.index.month).mean()
+    median_by_month = detrended.groupby(land.index.month).median()
+    low_by_month = detrended.groupby(land.index.month).quantile(0.25)
+    high_by_month = detrended.groupby(land.index.month).quantile(0.75)
+
+    first, last = land.index[0].year, land.index[-1].year
+    fig, axes = plt.subplots(3, 1, figsize=(11, 8))
+
+    land.plot(ax=axes[0], color="tab:blue", linewidth=0.8)
+    axes[0].set_title(f"Anomalía terrestre land, {first}-{last}")
+    axes[0].set_ylabel("observada (°C)")
+    axes[0].set_xlabel("año")
+
+    trend.plot(ax=axes[1], color="tab:red", linewidth=1.4)
+    axes[1].set_title("Tendencia: promedio móvil centrado de 12 meses")
+    axes[1].set_ylabel("tendencia (°C)")
+    axes[1].set_xlabel("año")
+
+    months = np.arange(1, 13)
+    axes[2].fill_between(months, low_by_month.values, high_by_month.values,
+                         color="tab:green", alpha=0.2,
+                         label=f"rango intercuartílico entre los {last - first + 1} años")
+    axes[2].plot(months, mean_by_month.values, color="tab:green",
+                 marker="o", linewidth=1.6, label="media del mes")
+    axes[2].plot(months, median_by_month.values, color="tab:purple",
+                 marker="s", linestyle="--", linewidth=1.2, label="mediana del mes")
+    axes[2].axhline(0, color="black", linewidth=0.6)
+    axes[2].set_xticks(months)
+    axes[2].set_xticklabels(MESES)
+    axes[2].set_title("Perfil estacional: los doce meses del residuo, no 146 años superpuestos")
+    axes[2].set_ylabel("componente (°C)")
+    axes[2].set_xlabel("mes")
+    axes[2].legend(loc="best", fontsize=8)
+
     fig.tight_layout()
     fig.savefig(OUT / "fig_descomposicion.png", dpi=150)
     plt.close(fig)
+
+    print(f"perfil estacional {first}-{last} (°C), media | mediana:")
+    for month in months:
+        print(f"  {MESES[month - 1]}  {mean_by_month[month]:+.4f}  {median_by_month[month]:+.4f}")
+    print(f"  max {MESES[mean_by_month.idxmax() - 1]} {mean_by_month.max():+.4f}"
+          f"   min {MESES[mean_by_month.idxmin() - 1]} {mean_by_month.min():+.4f}"
+          f"   rango {mean_by_month.max() - mean_by_month.min():.4f}")
 
 
 def fig_maximos(frame):
