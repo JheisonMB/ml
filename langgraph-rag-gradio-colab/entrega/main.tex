@@ -1,0 +1,51 @@
+\documentclass[11pt]{article}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\definecolor{azulunisalle}{HTML}{1B3A5C}
+\definecolor{grisclaro}{HTML}{F2F4F7}
+\hypersetup{colorlinks=true, linkcolor=azulunisalle, urlcolor=azulunisalle}
+\setlength{\parskip}{0.35em}
+\begin{document}
+\begin{center}
+{\large \textsc{Maestría en Inteligencia Artificial}}\\[0.2em]
+{\large Universidad de La Salle}\\[0.7em]
+{\color{azulunisalle}\rule{\linewidth}{2.2pt}}\\[0.7em]
+{\LARGE \bfseries Agente RAG en producción}\\[0.25em]
+{\large Colab + Drive + Gradio + Meta API}\\[0.5em]
+Hoja de entrega\\[0.8em]
+{\large \textbf{Autor:} Jheison Martinez Bolivar}\\
+{\large Fecha: noviembre de 2026}\\[0.8em]
+{\color{azulunisalle}\rule{\linewidth}{2.2pt}}
+\end{center}
+
+\section*{Ficha del sistema}
+\fcolorbox{azulunisalle}{grisclaro}{%
+\small\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+\begin{description}[leftmargin=3.2cm, style=nextline, itemsep=0.2em]
+\item[Corpus] Corpus completo en carpeta pública de Drive (el cuaderno informa el total indexado).
+\item[Indexación] Reanudable por manifiesto; fragmentos de 1000 caracteres con solape de 150 y métrica coseno.
+\item[Embeddings] \texttt{sentence-transformers/all-MiniLM-L6-v2} (funciona en Colab sin servidor local).
+\item[Agente] Agente LangChain con herramientas (buscar, contar, recargar); responde con citas \texttt{(archivo.pdf, p.~N)} o responde \texttt{SIN\_EVIDENCIA}.
+\item[Modelo] API de Meta (modelo \texttt{muse-spark-1.3-contributor}, \texttt{api.meta.ai}).
+\item[Interfaz] Gradio con streaming, cinco hiperparámetros, ejemplos.
+\end{description}
+\end{minipage}}
+
+\section*{Cuadernos en Colab}
+Abrir con la cuenta que tiene los PDF en Drive. Cada cuaderno trae su botón y su enlace limpio:
+
+\begin{center}
+\fcolorbox{azulunisalle}{grisclaro}{\href{https://colab.research.google.com/drive/1nPXxwt-4RSvWHaiP9KiO7LCw64mA53QM}{\textbf{Abrir el agente en Google Colab}}}
+\end{center}
+\noindent Cuaderno: \url{https://colab.research.google.com/drive/1nPXxwt-4RSvWHaiP9KiO7LCw64mA53QM}
+
+\begin{center}
+\fcolorbox{azulunisalle}{grisclaro}{\href{https://colab.research.google.com/drive/1yBulS6XK7kKsa8NWMBW274iXGgNj6u_6}{\textbf{Abrir el indexador en Google Colab}}}
+\end{center}
+\noindent Cuaderno: \url{https://colab.research.google.com/drive/1yBulS6XK7kKsa8NWMBW274iXGgNj6u_6}
+
+\end{document}

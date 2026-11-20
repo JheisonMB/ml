@@ -1,0 +1,13 @@
+gradio
+langchain
+langgraph
+langchain-chroma
+langchain-huggingface
+langchain-openai
+langchain-text-splitters
+sentence-transformers
+pypdf
+pandas
+matplotlib
+ipykernel
+openai

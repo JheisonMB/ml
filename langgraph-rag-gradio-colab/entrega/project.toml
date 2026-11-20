@@ -1,0 +1,7 @@
+[document]
+title = "entrega-rag-gradio-colab"
+author = "Jheison Martinez Bolivar"
+template = "general"
+
+[build]
+entry = "main.tex"
