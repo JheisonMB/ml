@@ -1,0 +1,8 @@
+[document]
+title = "informe-tecnico-kepler"
+author = "Jheison Martinez Bolivar"
+template = "apa7-student"
+
+[build]
+entry = "main.tex"
+bibliography = "bib/references.bib"
