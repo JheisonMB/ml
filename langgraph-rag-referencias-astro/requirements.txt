@@ -1,0 +1,9 @@
+ipykernel
+matplotlib
+pandas
+pypdf
+langchain
+langgraph
+langchain-ollama
+langchain-chroma
+langchain-text-splitters

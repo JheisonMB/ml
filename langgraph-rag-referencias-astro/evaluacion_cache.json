@@ -1,0 +1,261 @@
+{
+ "P1": {
+  "baseline": {
+   "answer": "En el corpus analizado, los métodos de denoising basados en modelos de difusión que aparecen aplicados a imágenes astronómicas son:\n\n1.  **Diffusion-Deblur**: Un enfoque basado en difusión diseñado para la desenfocada y el denoising simultáneo de imágenes astronómicas. Se presenta como una alternativa eficiente a las técnicas tradicionales, logrando un equilibrio entre la reducción del ruido y la preservación de detalles finos en observaciones profundas (archivo.pdf, p. 12).\n2.  **Denoise-Net con arquitectura de difusión**: Una implementación que utiliza procesos de difusión reversibles para modelar la distribución de probabilidad de las imágenes astronómicas ruidosas, permitiendo una inferencia robusta frente a diferentes niveles de ruido instrumental y atmosférico (archivo.pdf, p. 18).\n3.  **Diffusion-Prior**: Un método que integra un prior aprendido mediante difusión en redes neuronales convolucionales para tareas de denoising en imágenes de telescopios ópticos, demostrando superioridad en la recuperación de estructuras débiles comparado con métodos basados en aprendizaje profundo no difusos (archivo.pdf, p. 24).\n\nEstos métodos se destacan por su capacidad para manejar la alta dimensionalidad y el bajo contraste característico de los datos astronómicos, superando limitaciones comunes en técnicas de denoising clásicas o puramente basadas en redes generativas anteriores.",
+   "tool_calls": [],
+   "evidence": [],
+   "seconds": 3.5
+  },
+  "rag_fijo": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [
+    "(2024_O_learning_remove_noise_astronomical_images_without.pdf, p. 60)",
+    "(2023_CL_matched_filtering_gravitational_wave_detection_without.pdf, p. 6)",
+    "(2024_O_learning_remove_noise_astronomical_images_without.pdf, p. 12)",
+    "(2025_Z_cross_survey_image_transformation_enhancing_sdss.pdf, p. 2)"
+   ],
+   "seconds": 0.2
+  },
+  "grafo": {
+   "answer": "El corpus menciona los siguientes métodos de denoising basados en modelos de difusión aplicados a imágenes astronómicas:\n\n*   **Modelos de difusión basados en la muestreo posterior de difusión (DPS):** Se explora y evalúa la aplicación de modelos de difusión para la desconvolución de imágenes astronómicas mediante el algoritmo de muestreo posterior de difusión (DPS) [7]. Este método aprovecha simulaciones realistas para entrenar un modelo de difusión basado en puntuaciones que puede ser condicionado usando un término de guía de verosimilitud logarítmica, $\\nabla_x \\log p(y|x_t)$ [36] (2024_A_bayesian_deconvolution_astronomical_images_diffusion_models.pdf, p. 1).\n*   **AstroDiff:** Se menciona como un método basado en difusión que supera a las redes generativas adversarias (GANs) en calidad perceptiva, aunque incurre en costos computacionales más altos [2] (2025_S_strcgan_generative_framework_stellar_image_restoration.pdf, p. 2).\n*   **Modelos de difusión condicionales:** Se hace referencia a modelos que pueden generar imágenes de alta resolución con una fidelidad semántica alta al condicionarlas, capaces de abordar limitaciones en la reconstrucción de imágenes sucias en interferometría de radio [29] (2023_R_conditional_denoising_diffusion_probabilistic_model_radio.pdf, p. 2).\n*   **BGRem:** Se presenta como un \"removedor de ruido de fondo para imágenes astronómicas basado en un modelo de difusión\" [1] (2025_R_bgrem_background_noise_remover_astronomical_images.pdf, p. 1).",
+   "tool_calls": [
+    "buscar_literatura"
+   ],
+   "evidence": [
+    "(2025_R_bgrem_background_noise_remover_astronomical_images.pdf, p. 6)",
+    "(2024_A_bayesian_deconvolution_astronomical_images_diffusion_models.pdf, p. 1)",
+    "(2024_O_learning_remove_noise_astronomical_images_without.pdf, p. 20)",
+    "(2025_R_bgrem_background_noise_remover_astronomical_images.pdf, p. 1)",
+    "(2025_S_strcgan_generative_framework_stellar_image_restoration.pdf, p. 2)",
+    "(2023_R_conditional_denoising_diffusion_probabilistic_model_radio.pdf, p. 2)"
+   ],
+   "seconds": 5.3,
+   "plan": {
+    "intent": "buscar",
+    "variants": [
+     "diffusion-based denoising methods for astronomical imaging",
+     "applied diffusion models to remove noise in astronomical photographs",
+     "denoising techniques using diffusion priors in astrophotography"
+    ],
+    "year": ""
+   }
+  },
+  "agente": {
+   "answer": "El corpus presenta evidencia de que los modelos de difusión se aplican para denoising en imágenes astronómicas.\n\n*   Los modelos de difusión son descritos como el método generativo *state-of-the-art* en investigación de visión por computadora y aprendizaje profundo, lo cual es relevante para el campo astronómico (2023_D_denoising_diffusion_probabilistic_models_predict_density.pdf, p. 2).\n*   Se menciona explícitamente que los modelos de difusión ofrecen ventajas clave sobre las GANs al denoiser campos astrofísicos complejos con menos colapso de modos (2025_YS_deep_learning_astrophysics.pdf, p. 32).\n\nAunque se mencionan otros métodos como redes generativas adversarias (GANs) y aprendizaje profundo general, la evidencia específica para modelos de difusión en imágenes astronómicas es limitada a estas referencias.",
+   "tool_calls": [
+    "buscar_literatura({'consultas': ['diffusion models', 'denoising', 'astronomical images']})"
+   ],
+   "evidence": [
+    "(2025_R_image_denoising_deep_learning.pdf, p. 48)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_density.pdf, p. 2)",
+    "(2021_M_state_art_approaches_image_deconvolution_problems.pdf, p. 18)",
+    "(2025_B_surveystart_image_denoising.pdf, p. 3)",
+    "(2025_Z_cross_survey_image_transformation_enhancing_sdss.pdf, p. 1)",
+    "(2025_YS_deep_learning_astrophysics.pdf, p. 32)"
+   ],
+   "seconds": 5.6
+  }
+ },
+ "P2": {
+  "baseline": {
+   "answer": "Los artículos científicos sobre denoising en astronomía utilizan una variedad de métricas para evaluar la calidad de las imágenes procesadas, dependiendo si el análisis se realiza en el dominio espacial o en el dominio de frecuencia. Las métricas más comunes incluyen:\n\n1.  **MSE (Mean Squared Error) y RMSE (Root Mean Squared Error):** Se utilizan frecuentemente para medir la diferencia entre la imagen original (limpia) y la imagen denoisada, especialmente cuando se dispone de una imagen de referencia perfecta o simulada. (archivo.pdf, p. 12).\n2.  **PSNR (Peak Signal-to-Noise Ratio):** Es una métrica derivada del MSE que proporciona una medida en decibelios de la calidad de la imagen; valores más altos indican menor ruido y mayor fidelidad a la imagen original. (archivo.pdf, p. 15).\n3.  **SSIM (Structural Similarity Index Measure):** Evalúa la percepción humana de la calidad comparando la estructura local de la imagen denoisada con la original, siendo más robusta que el PSNR para detectar artefactos visuales como bordes borrosos o \"blooming\". (archivo.pdf, p. 18).\n4.  **SNR (Signal-to-Noise Ratio):** Mide la relación entre la señal de interés y el ruido residual en la imagen procesada. (archivo.pdf, p. 22).\n5.  **Métrica de Frecuencia:** En estudios que analizan el dominio de Fourier o Wavelet, se evalúa la preservación del espectro de potencia a diferentes frecuencias para asegurar que no se ha eliminado información de alta frecuencia crítica (detalles finos) ni se ha introducido ruido en bajas frecuencias. (archivo.pdf, p. 25).\n6.  **Métricas de Artefactos:** Se cuantifica la presencia de artefactos específicos como \"ringing\" (efecto de rebote), bordes difusos o pérdida de contraste, a menudo mediante análisis visual complementado con índices numéricos específicos del algoritmo utilizado. (archivo.pdf, p. 28).\n\nEs importante notar que en muchos casos reales, donde no existe una imagen original perfecta para comparar, los artículos se basan en simulaciones de ruido controlado o utilizan métricas internas del algoritmo para validar su rendimiento.",
+   "tool_calls": [],
+   "evidence": [],
+   "seconds": 5.7
+  },
+  "rag_fijo": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [
+    "(2024_L_relationships_between_observables_astrophysical_conditions_statistical.pdf, p. 111)",
+    "(2023_L_deep_learning_denoising_dimension_reduction_application.pdf, p. 2)",
+    "(2021_M_state_art_approaches_image_deconvolution_problems.pdf, p. 18)",
+    "(2024_G_study_image_denoising_deep_learning.pdf, p. 7)"
+   ],
+   "seconds": 0.3
+  },
+  "grafo": {
+   "answer": "Los artículos del corpus mencionan explícitamente el uso de la **relación señal-ruido pico (PSNR)** como una de las métricas más ampliamente utilizadas y reconocidas para evaluar la restauración e imagen y denoising. Además, se hace referencia al desarrollo de métricas estandarizadas que incluyen **PSNR**, **SSIM** y **métricas perceptuales** para facilitar la comparación de algoritmos de denoising.\n\n*   (2024_X_restoring_dynamic_spectra_corrupted_radio_frequency.pdf, p. 83): \"For the restoration aspect, which focuses on image restoration and denoising, peak signal-to-noise ratio (PSNR) is one of the most widely used and recognised metrics.\"\n*   (2025_B_surveystart_image_denoising.pdf, p. 3): \"The development of standardized evaluation metrics such as PSNR, SSIM, and perceptual metrics has facilitated the comparison of denoising algorithms.\"",
+   "tool_calls": [
+    "buscar_literatura"
+   ],
+   "evidence": [
+    "(2024_O_learning_remove_noise_astronomical_images_without.pdf, p. 20)",
+    "(2024_O_learning_remove_noise_astronomical_images_without.pdf, p. 21)",
+    "(2025_Z_cross_survey_image_transformation_enhancing_sdss.pdf, p. 2)",
+    "(2024_X_restoring_dynamic_spectra_corrupted_radio_frequency.pdf, p. 83)",
+    "(2026_S_denoising_deep_sky_physics_ccd_noise.pdf, p. 4)",
+    "(2025_B_surveystart_image_denoising.pdf, p. 3)"
+   ],
+   "seconds": 4.0,
+   "plan": {
+    "intent": "buscar",
+    "variants": [
+     "What evaluation metrics are employed in astronomical denoising research to quantify image restoration quality?",
+     "Which performance indicators do scientific studies utilize for assessing the fidelity of noise removal algorithms in astronomy?",
+     "How is the effectiveness of denoising techniques measured in celestial imaging papers using specific statistical or visual criteria?"
+    ],
+    "year": ""
+   }
+  },
+  "agente": {
+   "answer": "Los artículos del corpus utilizan varias métricas para evaluar la calidad del denoising, dependiendo del contexto y el tipo de datos:\n\n*   **PSNR (Peak Signal-to-Noise Ratio):** Se utiliza para medir la relación entre la potencia máxima posible de una señal y la potencia del ruido corruptor. Valores más altos indican mejor calidad.\n    *   *(2025_SS_enhancing_galaxy_classification_u_net_variational.pdf, p. 8)*\n*   **SSIM (Structural Similarity Index):** Mide la similitud entre dos imágenes considerando cambios en información estructural, luminancia y contraste. Valores cercanos a 1 indican mejor calidad.\n    *   *(2025_SS_enhancing_galaxy_classification_u_net_variational.pdf, p. 8)*\n*   **SNR (Signal-to-Noise Ratio):** Se usa para evaluar el rendimiento del modelo en conjuntos de datos públicos con ground truth sin ruido.\n    *   *(2024_Y_self_supervised_image_denoising_third_harmonic.pdf, p. 6)*\n*   **CNR (Contrast-to-Noise Ratio):** También se emplea junto con SNR para evaluar el rendimiento del modelo en conjuntos de datos públicos sin ruido.\n    *   *(2024_Y_self_supervised_image_denoising_third_harmonic.pdf, p. 6)*\n*   **MSE (Mean Squared Error) y MAE (Mean Absolute Error):** Se mencionan como funciones de pérdida a nivel de píxel que priorizan la similitud numérica sobre la calidad perceptual.\n    *   *(2025_R_image_denoising_deep_learning.pdf, p. 19)*\n\nAdemás, se destaca el desarrollo de métricas estandarizadas y conjuntos de datos de referencia para comparar el rendimiento de diferentes algoritmos.\n*   *(2025_B_surveystart_image_denoising.pdf, p. 3)*",
+   "tool_calls": [
+    "buscar_literatura({'consultas': ['denoising quality metrics', 'performance evaluation noise removal']})"
+   ],
+   "evidence": [
+    "(2025_SS_enhancing_galaxy_classification_u_net_variational.pdf, p. 8)",
+    "(2025_B_surveystart_image_denoising.pdf, p. 3)",
+    "(2024_Y_self_supervised_image_denoising_third_harmonic.pdf, p. 6)",
+    "(2025_R_image_denoising_deep_learning.pdf, p. 19)",
+    "(2024_G_study_image_denoising_deep_learning.pdf, p. 24)"
+   ],
+   "seconds": 5.6
+  }
+ },
+ "P3": {
+  "baseline": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [],
+   "seconds": 0.3
+  },
+  "rag_fijo": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [
+    "(XXXX_MD_resolution_inverse_problems_astrophysics_through_deep.pdf, p. 242)",
+    "(2024_KE_spectropolarimetric_inversion_four_dimensions_deep_learning.pdf, p. 16)",
+    "(2024_Y_research_biomedical_image_denoising_method_deep.pdf, p. 99)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_number.pdf, p. 5)"
+   ],
+   "seconds": 0.3
+  },
+  "grafo": {
+   "answer": "Hay 54 artículos del corpus indexado del año 2024.",
+   "tool_calls": [
+    "contar_articulos"
+   ],
+   "evidence": [],
+   "seconds": 1.6,
+   "plan": {
+    "intent": "contar",
+    "variants": [
+     "How many indexed articles from the year 2024 address denoising techniques in astronomical imaging?",
+     "What is the count of 2024 publications on noise reduction methods for astronomical observations?",
+     "How many papers published in 2024 discuss signal-to-noise ratio improvement in astronomy?"
+    ],
+    "year": "2024"
+   }
+  },
+  "agente": {
+   "answer": "Hay 54 artículos del corpus indexado del año 2024.",
+   "tool_calls": [
+    "contar_articulos({'anio': '2024'})"
+   ],
+   "evidence": [],
+   "seconds": 1.2
+  }
+ },
+ "P4": {
+  "baseline": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [],
+   "seconds": 0.3
+  },
+  "rag_fijo": {
+   "answer": "El artículo de 2023 que trata sobre modelos de difusión en el contexto proporcionado es **EPiC-ly Fast** (Buhmann et al., 2023), específicamente por su propuesta de generadores basados en flujo con emparejamiento (flow-matching) y la variante más rápida EPiC-JeDi.\n\n(2025_F_rodem_scientific_report.pdf, p. 2)",
+   "tool_calls": [],
+   "evidence": [
+    "(2024_C_multi_step_prediction_algorithm_analysis_gravitational.pdf, p. 4)",
+    "(2025_F_rodem_scientific_report.pdf, p. 2)",
+    "(2022_MJ_deep_learning_explore_ultra_large_scale.pdf, p. 111)",
+    "(2022_MJ_deep_learning_explore_ultra_large_scale.pdf, p. 121)"
+   ],
+   "seconds": 1.2
+  },
+  "grafo": {
+   "answer": "El corpus contiene tres artículos publicados o presentados en 2023 que tratan sobre modelos de difusión (DDPMs) aplicados a la astronomía:\n\n1.  **Denoising Diffusion Probabilistic Models to Predict the Number Density of Molecular Clouds in Astronomy**\n    *   **Autores:** Duo Xu, Jonathan C. Tan, Chia-Jung Hsu, Ye Zhu.\n    *   **Fuente:** (2023_D_denoising_diffusion_probabilistic_models_predict_number.pdf, p. 1).\n    *   **Descripción:** Este artículo presenta el uso de DDPMs para predecir la densidad numérica de nubes moleculares en astronomía. Se menciona que los modelos han demostrado su proficiencia en generación de imágenes y audio, lo cual es adecuado para tareas predictivas en astronomía (p. 2).\n\n2.  **VIC-DDPM: Visibility and Image Conditioned Denoising Diffusion Probabilistic Model**\n    *   **Fuente:** (2023_R_conditional_denoising_diffusion_probabilistic_model_radio.pdf, p. 1).\n    *   **Descripción:** Este artículo introduce VIC-DDPM, un modelo condicionado por visibilidad e imagen para el procesamiento de datos de radioastronomía. El objetivo es generar imágenes detalladas eliminando ruido y utilizando datos de visibilidad para separar señales de ruido (p. 1).\n\n3.  **Diffusion models for cosmological simulations**\n    *   **Autores:** Ullmo M., Decelle A., Aghanim N.\n    *   **Fuente:** (2023_A_stochastic_super_resolution_cosmological_simulations_denoising.pdf, p. 11).\n    *   **Descripción:** Aunque esta página parece ser una lista de referencias bibliográficas dentro de un documento más amplio, el título del artículo indica explícitamente el uso de modelos de difusión para simulaciones cosmológicas (p. 11).",
+   "tool_calls": [
+    "buscar_literatura"
+   ],
+   "evidence": [
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_number.pdf, p. 1)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_number.pdf, p. 2)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_density.pdf, p. 2)",
+    "(2023_R_conditional_denoising_diffusion_probabilistic_model_radio.pdf, p. 1)",
+    "(2023_A_stochastic_super_resolution_cosmological_simulations_denoising.pdf, p. 11)",
+    "(2023_R_conditional_denoising_diffusion_probabilistic_model_radio.pdf, p. 8)"
+   ],
+   "seconds": 6.4,
+   "plan": {
+    "intent": "buscar",
+    "variants": [
+     "2023 diffusion model astronomical imaging papers",
+     "denoising diffusion probabilistic models in astronomy 2023",
+     "astronomical image reconstruction using diffusion priors 2023"
+    ],
+    "year": "2023"
+   }
+  },
+  "agente": {
+   "answer": "El corpus de 2023 incluye artículos que tratan sobre modelos de difusión en el contexto del denoising y la astronomía:\n\n*   Los modelos de difusión se describen como un proceso inverso al que transforma la distribución de datos en ruido gaussiano, donde el modelo aprende a \"desruidizar\" los datos predecir versiones menos ruidosas [2023_R_conditional_denoising_diffusion_probabilistic_model_radio.pdf, p. 2].\n*   Se menciona que los modelos de difusión son el método generativo *state-of-the-art* en investigación de aprendizaje profundo y visión por computadora, y se utilizan para inferir distribuciones de densidad [2023_D_denoising_diffusion_probabilistic_models_predict_density.pdf, p. 2].\n*   Un artículo aplica modelos de difusión para super-resolución cósmica, demostrando su rendimiento en la validación visual de campos de desplazamiento y densidad generados [2023_A_stochastic_super_resolution_cosmological_simulations_denoising.pdf, p. 2].\n*   Se analiza el uso de Redes Neuronales Denoising (DDNN) para la eliminación de fondo, destacando su estabilidad en el entrenamiento y capacidades de síntesis realista en comparación con otras técnicas como GANs o VAEs [2023_I_optimal_background_removal_denoising_diffusion_models.pdf, p. 2].\n*   Se compara la inferencia basada en modelos de difusión (como DDPM) con métodos basados en CNN y VAE, señalando que los primeros preservan mejor la dimensionalidad de los datos y ofrecen una mayor trazabilidad e interpretabilidad [2023_D_denoising_diffusion_probabilistic_models_predict_number.pdf, p. 11].",
+   "tool_calls": [
+    "buscar_literatura({'consultas': ['diffusion models', 'denoising diffusion'], 'anio': '2023'})"
+   ],
+   "evidence": [
+    "(2023_R_conditional_denoising_diffusion_probabilistic_model_radio.pdf, p. 2)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_density.pdf, p. 2)",
+    "(2023_A_stochastic_super_resolution_cosmological_simulations_denoising.pdf, p. 2)",
+    "(2023_I_optimal_background_removal_denoising_diffusion_models.pdf, p. 2)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_density.pdf, p. 3)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_number.pdf, p. 11)"
+   ],
+   "seconds": 5.4
+  }
+ },
+ "P5": {
+  "baseline": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [],
+   "seconds": 0.4
+  },
+  "rag_fijo": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [
+    "(2024_Y_research_biomedical_image_denoising_method_deep.pdf, p. 99)",
+    "(2023_F_dawes_review_10_impact_deep_learning.pdf, p. 48)",
+    "(2024_Y_research_biomedical_image_denoising_method_deep.pdf, p. 231)",
+    "(2023_D_denoising_diffusion_probabilistic_models_predict_number.pdf, p. 5)"
+   ],
+   "seconds": 0.3
+  },
+  "grafo": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [
+    "buscar_literatura"
+   ],
+   "evidence": [],
+   "seconds": 1.2,
+   "plan": {
+    "intent": "buscar",
+    "variants": [
+     "What was Colombia's gross domestic product in 2025?",
+     "How much did Colombia's GDP amount to in the year 2025?",
+     "What was the total economic output of Colombia during 2025?"
+    ],
+    "year": "2025"
+   }
+  },
+  "agente": {
+   "answer": "SIN_EVIDENCIA",
+   "tool_calls": [],
+   "evidence": [],
+   "seconds": 0.5
+  }
+ }
+}
