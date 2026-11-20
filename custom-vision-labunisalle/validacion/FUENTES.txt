@@ -1,0 +1,11 @@
+Validacion externa - imagenes NUEVAS (no estan en animals/ de entrenamiento).
+Fuente: Wikimedia Commons via Special:FilePath (width=1600).
+
+elephant/elephant_val_01.jpg <- File:African elephant.jpg (USFWS, dominio publico)
+elephant/elephant_val_02.jpg <- File:African Bush Elephant.jpg (CC BY-SA / GFDL, featured)
+giraffe/giraffe_val_01.jpg <- File:Giraffe standing.jpg (CC BY-SA 3.0 + GFDL, Miroslav Duchacek)
+giraffe/giraffe_val_02.jpg <- File:Giraffe Family.jpg (dominio publico, John Storr)
+lion/lion_val_01.jpg <- File:Lion (Panthera leo) male 6y.jpg (CC BY-SA 4.0, Charlesjsharp)
+lion/lion_val_02.jpg <- File:Roaring lion (Unsplash).jpg (CC0, Unsplash pre-2017-06-05)
+
+Uso: Quick Test en customvision.ai con imagenes no vistas. Citar Commons en el informe.

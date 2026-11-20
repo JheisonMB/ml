@@ -1,0 +1,11 @@
+$ az cognitiveservices account list --resource-group lab -o table
+Kind                     Location        Name                    ResourceGroup
+-----------------------  --------------  ----------------------  ---------------
+CustomVision.Training    northcentralus  labunisalle             lab
+CustomVision.Prediction  northcentralus  labunisalle-Prediction  lab
+
+$ az cognitiveservices account list --resource-group lab --query "[].{name:name,kind:kind,location:location,sku:sku.name}" -o table
+Name                    Kind                     Location        Sku
+----------------------  -----------------------  --------------  -----
+labunisalle             CustomVision.Training    northcentralus  S0
+labunisalle-Prediction  CustomVision.Prediction  northcentralus  S0

@@ -1,0 +1,12 @@
+Publish OK - Iteration1 -> AnimalIdentification-v1
+Prediction resource: labunisalle-Prediction (northcentralus)
+
+Endpoint imagen (archivo):
+https://labunisalle-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/8745a5dd-92de-4fd7-967f-642ce3967c6c/classify/iterations/Iteration1/image
+Headers: Prediction-Key: <clave en portal labunisalle-Prediction>, Content-Type: application/octet-stream
+Body: archivo jpg/png/bmp <=4MB
+
+Endpoint URL (json):
+https://labunisalle-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/8745a5dd-92de-4fd7-967f-642ce3967c6c/classify/iterations/Iteration1/url
+Headers: Prediction-Key: <clave>, Content-Type: application/json
+Body: {"Url": "https://example.com/image.png"}

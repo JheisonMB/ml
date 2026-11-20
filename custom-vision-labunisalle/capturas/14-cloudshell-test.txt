@@ -1,0 +1,6 @@
+$ curl -s -X POST "$PREDICT_URL_IMAGE" -H "Prediction-Key: $PKEY" -H "Content-Type: application/octet-stream" --data-binary "@validacion/lion/lion_val_01.jpg"
+{"predictions":[{"probability":0.998618,"tagName":"lion"},{"probability":0.00083380495,"tagName":"elephant"},{"probability":0.00054813526,"tagName":"giraffe"}]}
+$ curl -s -X POST "$PREDICT_URL_IMAGE" -H "Prediction-Key: $PKEY" -H "Content-Type: application/octet-stream" --data-binary "@validacion/giraffe/giraffe_val_02.jpg"
+{"predictions":[{"probability":0.8700262,"tagName":"giraffe"},{"probability":0.114690825,"tagName":"elephant"},{"probability":0.015282968,"tagName":"lion"}]}
+Coincide con Quick Test del portal (99.8% y 87.0%).
+Clave no se imprime en este archivo; esta en portal labunisalle-Prediction > Keys and Endpoint.

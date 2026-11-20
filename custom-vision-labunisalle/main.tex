@@ -1,0 +1,295 @@
+% Informe de Animal Identification con Custom Vision, estilo editorial rayos-x.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[spanish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{newpxtext,newpxmath}
+\usepackage{microtype}
+\usepackage[skip=0.6\baselineskip]{parskip}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{listings}
+
+\definecolor{editorialink}{HTML}{292927}
+\definecolor{editorialaccent}{HTML}{984C3D}
+\usepackage[colorlinks=true,linkcolor=editorialaccent,citecolor=editorialaccent,
+  urlcolor=editorialaccent,breaklinks=true,pdfauthor={Jheison Martinez Bolivar},
+  pdftitle={Animal Identification con Custom Vision}]{hyperref}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{editorialink}}
+{\textcolor{editorialaccent}{\thesection}}{0.75em}{}
+\titlespacing*{\section}{0pt}{1.45\baselineskip}{0.55\baselineskip}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{editorialink}}
+{\thesubsection}{0.7em}{}
+\titlespacing*{\subsection}{0pt}{1.15\baselineskip}{0.4\baselineskip}
+\setlength{\emergencystretch}{2em}
+
+% Listados de código de los anexos.
+\lstset{basicstyle=\ttfamily\footnotesize,numbers=left,numberstyle=\tiny\color{gray},breaklines=true,frame=single,columns=fullflexible,keepspaces=true}
+
+% Captura de pantalla centrada y compacta.
+\newcommand{\figura}[2]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{capturas/#1}
+    \caption{#2}
+  \end{figure}
+}
+
+% Dos capturas lado a lado, para ahorrar espacio.
+\newcommand{\figuraPar}[4]{%
+  \begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{capturas/#1}
+      \caption{#2}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{capturas/#3}
+      \caption{#4}
+    \end{minipage}
+  \end{figure}
+}
+
+\title{Animal Identification con Custom Vision}
+\author{Jheison Martinez Bolivar}
+\date{\today}
+
+\begin{document}
+
+  \maketitle
+
+  \begin{abstract}
+    Este informe describe la creaci\'on de un clasificador de im\'agenes de
+    elefantes, jirafas y leones con Azure Custom Vision~\cite{microsoft_customvision2024}
+    sobre Azure AI Services~\cite{microsoft_cognitiveservices2024}. La
+    suscripci\'on Azure for Students impone la policy
+    \texttt{sys.regionrestriction}, que solo permite \texttt{francecentral},
+    \texttt{belgiumcentral}, \texttt{northcentralus}, \texttt{spaincentral} y
+    \texttt{chilecentral}; por eso el instructivo original en \texttt{East US}
+    falla con \texttt{InvalidTemplateDeployment / RequestDisallowedByAzure}.
+    Verificado por CLI, solo \texttt{northcentralus} soporta
+    \texttt{CustomVision.Training} y \texttt{Prediction}, as\'i que los recursos
+    \texttt{labunisalle} y \texttt{labunisalle-Prediction} se crearon all\'i en
+    SKU S0. El proyecto \textit{Animal Identification} (Classification,
+    Multiclass, dominio General [A2]) se entren\'o con 17 im\'agenes por clase y
+    Quick Training: Precision, Recall y AP en 100\,\% sobre entrenamiento. Con 6
+    im\'agenes nuevas de Wikimedia Commons el modelo publicado acierta 6 de 6
+    con confianza media de 96.7\,\%.
+  \end{abstract}
+
+  %=========================================================================
+  \section{Introducci\'on}
+  \subsection{Objetivo}
+  Entrenar un clasificador de im\'agenes en Custom Vision con fotos de
+  elefantes, jirafas y leones, documentar el proceso (recursos, proyecto,
+  etiquetas, entrenamiento, m\'etricas y publicaci\'on) y probar el modelo
+  publicado con im\'agenes no vistas.
+
+  \subsection{Restricci\'on regional}
+  El instructivo pide la regi\'on \texttt{East US}, pero la suscripci\'on la
+  bloquea. La policy \texttt{sys.regionrestriction} de la suscripci\'on solo
+  permite cinco regiones, y de esas cinco solo \texttt{northcentralus} devuelve
+  SKUs para \texttt{CustomVision.Training} y \texttt{Prediction}:
+
+  \begin{lstlisting}
+$ az policy assignment show --name sys.regionrestriction
+Allowed: francecentral, belgiumcentral, northcentralus,
+  spaincentral, chilecentral
+$ az cognitiveservices account list-skus \
+  --kind CustomVision.Training --location northcentralus
+F0, S0
+$ az cognitiveservices account list-skus \
+  --kind CustomVision.Training --location francecentral
+(vacio)
+  \end{lstlisting}
+
+  Por eso todo el trabajo se hace en \texttt{northcentralus}. El grupo de
+  recursos \texttt{lab} puede seguir en \texttt{eastus}: la policy mira la
+  ubicaci\'on del recurso, no la del grupo.
+
+  %=========================================================================
+  \section{Metodolog\'ia}
+  \subsection{Recursos en Azure}
+  Se crearon en el grupo \texttt{lab} dos recursos en SKU S0, verificados con
+  \texttt{az cognitiveservices account list --resource-group lab} (salida en
+  \texttt{capturas/01-cli-recursos.txt}):
+
+  \begin{table}[H]
+    \centering
+    \caption{Recursos verificados por CLI.}
+    \label{tab:recursos}
+    \begin{tabular}{lll}
+      \toprule
+      Nombre & Kind & Location / SKU \\
+      \midrule
+      labunisalle & CustomVision.Training & northcentralus / S0 \\
+      labunisalle-Prediction & CustomVision.Prediction & northcentralus / S0 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \figura{02-portal-recursos.png}{Creaci\'on de los recursos en el portal de Azure.}
+
+  \subsection{Proyecto de Custom Vision}
+  El recurso no es el proyecto. El proyecto se crea en
+  \texttt{customvision.ai} con el recurso de entrenamiento como contenedor de
+  llaves. Ajustes usados:
+
+  \begin{itemize}
+    \item Name: \textit{Animal Identification}.
+    \item Description: \textit{Image classification for animals}.
+    \item Resource: \texttt{labunisalle [northcentralus]}.
+    \item Project Type: Classification.
+    \item Classification Type: Multiclass (un solo tag por imagen).
+    \item Domain: General [A2].
+  \end{itemize}
+
+  \figura{03-create-project.png}{Creaci\'on del proyecto Animal Identification en customvision.ai.}
+
+  \subsection{Carga y etiquetado}
+  Se subi\'o por etiquetas \texttt{elephant}, \texttt{giraffe} y \texttt{lion},
+  con 17 im\'agenes por clase. Cada lote se etiqueta al subirlo; una imagen con
+  m\'as de una etiqueta romper\'ia el supuesto Multiclass, por eso se verifica
+  un solo tag por imagen.
+
+  \figura{04-tags.png}{Lotes etiquetados por clase, 17 im\'agenes cada uno.}
+
+  \subsection{Entrenamiento}
+  Se entren\'o con \texttt{Train} en modo Quick Training. La Iteraci\'on 1
+  termin\'o el 8/11/2026 a las 6:51:53 PM con dominio General [A2], ID
+  \texttt{71779344-fd60-4c43-9e8f-788ef5230282}.
+
+  \figura{05-train.png}{Entrenamiento r\'apido lanzado y completado.}
+
+  \figura{06-train-result.png}{Performance de la Iteraci\'on 1: Precision, Recall y AP globales en 100.0\,\%.}
+
+  %=========================================================================
+  \section{Resultados}
+  \subsection{M\'etricas de entrenamiento}
+  La Tabla~\ref{tab:performance} resume el panel Performance con umbral 50\,\%.
+  El 100\,\% en las tres m\'etricas y en los tres tags se lee con cautela: con
+  51 im\'agenes el modelo memoriza el set de entrenamiento; la prueba que
+  importa es con im\'agenes nuevas.
+
+  \begin{table}[H]
+    \centering
+    \caption{Performance por tag, Iteraci\'on 1.}
+    \label{tab:performance}
+    \begin{tabular}{lccc}
+      \toprule
+      Tag & Precision & Recall & Im\'agenes \\
+      \midrule
+      lion & 100.0\,\% & 100.0\,\% & 17 \\
+      giraffe & 100.0\,\% & 100.0\,\% & 17 \\
+      elephant & 100.0\,\% & 100.0\,\% & 17 \\
+      \midrule
+      Global & 100.0\,\% & 100.0\,\% & 51 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \subsection{Prueba con im\'agenes nuevas}
+  Se probaron 6 im\'agenes externas de Wikimedia Commons (carpeta
+  \texttt{validacion/}, con fuentes y licencias en \texttt{FUENTES.txt}), no
+  vistas en entrenamiento, con \textit{Quick Test} sobre la Iteraci\'on 1. Las
+  6 clasifican bien, con confianza media de 96.7\,\%. El caso m\'as d\'ebil es
+  la imagen con tres jirafas juntas (87.0\,\% con 11.4\,\% a elephant), la
+  \'unica con oclusi\'on y m\'ultiples instancias.
+
+  \begin{table}[H]
+    \centering
+    \caption{Quick Test con im\'agenes nuevas (6 de 6 aciertos).}
+    \label{tab:quicktest}
+    \begin{tabular}{lcc}
+      \toprule
+      Imagen & Predicci\'on & Confianza \\
+      \midrule
+      elephant\_val\_01 & elephant 98.0\,\% & 98.0\,\% \\
+      elephant\_val\_02 & elephant 97.6\,\% & 97.6\,\% \\
+      giraffe\_val\_01 & giraffe 98.5\,\% & 98.5\,\% \\
+      giraffe\_val\_02 & giraffe 87.0\,\% & 87.0\,\% \\
+      lion\_val\_01 & lion 99.8\,\% & 99.8\,\% \\
+      lion\_val\_02 & lion 99.6\,\% & 99.6\,\% \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \figuraPar{07-quick-test-elephant1.png}{Elefante nuevo: 98.0\,\%.}{08-quick-test-elephant2.png}{Elefante nuevo: 97.6\,\%.}
+
+  \figuraPar{09-quick-test-giraffe1.png}{Jirafa nueva: 98.5\,\%.}{10-quick-test-giraffe2.png}{Tres jirafas con oclusi\'on: 87.0\,\%.}
+
+  \figuraPar{11-quick-test-lion1.png}{Le\'on nuevo: 99.8\,\%.}{12-quick-test-lion2.png}{Le\'on rugiendo: 99.6\,\%.}
+
+  \subsection{Publicaci\'on y cliente}
+  La Iteraci\'on 1 se public\'o como modelo \texttt{AnimalIdentification-v1}
+  contra el recurso \texttt{labunisalle-Prediction} en \texttt{northcentralus}.
+  El endpoint de imagen es:
+
+  \begin{lstlisting}
+https://labunisalle-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/8745a5dd-92de-4fd7-967f-642ce3967c6c/classify/iterations/Iteration1/image
+  \end{lstlisting}
+
+  con headers \texttt{Prediction-Key: <clave del portal>} y
+  \texttt{Content-Type: application/octet-stream}. La clave completa queda en
+  el portal (\texttt{labunisalle-Prediction > Keys and Endpoint}) y no se
+  imprime en este PDF por seguridad; se rota despu\'es de la entrega. La
+  evidencia del endpoint queda en \texttt{capturas/13-publish-endpoint.txt}.
+
+  La prueba del cliente se hizo con \texttt{curl} sobre dos im\'agenes de
+  validaci\'on (salida completa en
+  \texttt{capturas/14-cloudshell-test.txt}):
+
+  \begin{lstlisting}
+$ curl -s -X POST "$PREDICT_URL_IMAGE" \
+  -H "Prediction-Key: $PKEY" \
+  -H "Content-Type: application/octet-stream" \
+  --data-binary "@validacion/lion/lion_val_01.jpg"
+lion 0.9986, elephant 0.0008, giraffe 0.0005
+$ curl -s -X POST "$PREDICT_URL_IMAGE" \
+  --data-binary "@validacion/giraffe/giraffe_val_02.jpg"
+giraffe 0.8700, elephant 0.1147, lion 0.0153
+  \end{lstlisting}
+
+  Los valores coinciden con el Quick Test del portal (99.8\,\% y 87.0\,\%),
+  as\'i que el modelo publicado responde igual que el evaluado.
+
+  %=========================================================================
+  \section{Conclusiones}
+  \begin{itemize}
+    \item El bloqueo en \texttt{East US} no es un error del procedimiento sino
+      de la suscripci\'on: la policy solo deja cinco regiones y solo
+      \texttt{northcentralus} sirve para Custom Vision.
+    \item Con 51 im\'agenes el 100\,\% en entrenamiento confirma
+      memorizaci\'on del set; la evidencia de generalizaci\'on es el 6 de 6 en
+      im\'agenes nuevas con media de 96.7\,\%.
+    \item El \'unico caso d\'ebil combina oclusi\'on y m\'ultiples instancias
+      (tres jirafas, 87.0\,\%), que es el l\'imite esperable de un
+      clasificador de imagen completa sin detecci\'on.
+  \end{itemize}
+
+  \subsection{Limitaciones}
+  El conjunto es peque\~no y no generaliza m\'as all\'a de este ejercicio. Las
+  im\'agenes de validaci\'on vienen de Wikimedia Commons y se citan en
+  \texttt{validacion/FUENTES.txt}. El paso siguiente ser\'ia una prueba m\'as
+  grande y con fondos m\'as variados.
+
+  \bibliographystyle{plain}
+  \bibliography{bib/references}
+
+  \appendix
+  \section{Anexo: script de prueba del modelo}
+  Listado completo de \texttt{anexos/probar\_prediccion.sh}, que prueba el
+  modelo publicado con \texttt{curl}. La clave se exporta fuera del script.
+
+  \lstinputlisting[language=bash]{anexos/probar_prediccion.sh}
+
+\end{document}
